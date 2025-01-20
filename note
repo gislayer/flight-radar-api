@@ -1,0 +1,21 @@
+nest generate module aircraft
+nest generate service aircraft
+nest generate controller aircraft
+
+
+nest generate module files
+nest generate service files
+nest generate controller files
+
+
+nest generate module airports
+nest generate service airports
+nest generate controller airports
+
+nest generate module pilots
+nest generate service pilots
+nest generate controller pilots
+
+nest generate module routes
+nest generate service routes
+nest generate controller routes
