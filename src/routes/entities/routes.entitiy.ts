@@ -37,6 +37,9 @@ export class Route {
     @Column({ type: 'float', nullable: true, default: 0 }) 
     altitude: number;
 
+    @Column({ type: 'float', nullable: true, default: 0 }) 
+    bearing: number;
+
     @Column('geometry', {
         spatialFeatureType: 'Point',
         srid: 4326

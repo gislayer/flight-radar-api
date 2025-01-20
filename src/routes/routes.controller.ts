@@ -56,6 +56,13 @@ export class RoutesController {
         return this.routesService.generateRoutes();
     }
 
+    @Get('/start')
+    @ApiOperation({ summary: 'Rota loglarını getir' })
+    @ApiResponse({ status: 200, description: 'Rota logları başarıyla getirildi' })
+    getLogs() {
+        return this.routesService.start();
+    }
+
     @Get(':id')
     @ApiOperation({ summary: 'ID ile rota getir' })
     @ApiResponse({ status: 200, description: 'Rota başarıyla getirildi', type: Route })

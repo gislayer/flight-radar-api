@@ -5,14 +5,19 @@ import { Route } from './entities/routes.entitiy';
 import { CreateRouteDto, UpdateRouteDto } from './dto/create-route.dto';
 import { Err } from 'src/common/error';
 import { Airport } from 'src/airports/entities/airports.entitiy';
+import { RouteLog } from './entities/route_logs.entitiy';
 
 @Injectable()
 export class RoutesService {
+    private speed = 800;
+    private animationCount = 0;
     constructor(
         @InjectRepository(Route)
         private routeRepository: Repository<Route>,
         @InjectRepository(Airport)
-        private airportRepository: Repository<Airport>
+        private airportRepository: Repository<Airport>,
+        @InjectRepository(RouteLog)
+        private routeLogRepository: Repository<RouteLog>
     ) {}
 
     async create(createRouteDto: CreateRouteDto): Promise<Route> {
@@ -63,6 +68,73 @@ export class RoutesService {
 
     async removeAll(): Promise<void> {
         await this.routeRepository.clear();
+    }
+
+    async start(): Promise<void> {
+        var speed = 800;
+        var intervalTiming = 2*1000
+        if(this.animationCount !==0) {
+            Err.bad('Animation already started');
+        }
+        this.animationCount++;
+        setTimeout(async() => {
+            if(this.animationCount === 0) {
+                return;
+            }
+            var islem1 = await this.routeRepository.query(`
+                INSERT INTO route_logs (route_id, altitude, bearing, speed, date, geometry)
+                SELECT id, altitude, bearing, speed, last_update_date, point 
+                FROM routes 
+                WHERE status = true`);
+            var islem2 = await this.routeRepository.query(`UPDATE routes SET status = false WHERE status = true;`);
+
+            var islem3 = await this.routeRepository.query(`
+                WITH route_info AS (
+                    SELECT 
+                        r.id,
+                        r.point as start_point,
+                        ST_SetSRID(ST_GeomFromGeoJSON(ST_AsGeoJSON(a.geometry)), 4326) as end_point,
+                        ST_Length(ST_MakeLine(r.point, ST_SetSRID(ST_GeomFromGeoJSON(ST_AsGeoJSON(a.geometry)), 4326))::geography) as total_distance,
+                        ${speed/3600*intervalTiming/1000} as distance_to_move
+                    FROM routes r
+                    JOIN airports a ON r.finish_airport_id = a.id
+                    WHERE r.status = false
+                ),
+                calculated_points AS (
+                    SELECT 
+                        id,
+                        start_point,
+                        end_point,
+                        total_distance,
+                        distance_to_move,
+                        ST_SetSRID(ST_LineInterpolatePoint(
+                            ST_MakeLine(start_point::geometry, end_point::geometry), 
+                            LEAST(distance_to_move / total_distance, 1)
+                        ), 4326) as new_point,
+                        degrees(ST_Azimuth(start_point::geometry, end_point::geometry)) as bearing,
+                        (distance_to_move / total_distance) * 100 as progress_percent
+                    FROM route_info
+                )
+                UPDATE routes r
+                SET 
+                    point = cp.new_point::geometry,
+                    bearing = cp.bearing,
+                    speed = ${speed},
+                    altitude = CASE 
+                        WHEN cp.progress_percent <= 25 THEN 11000 * (cp.progress_percent / 25)
+                        WHEN cp.progress_percent > 75 THEN 11000 * ((100 - cp.progress_percent) / 25)
+                        ELSE 11000
+                    END,
+                    status = CASE 
+                        WHEN cp.distance_to_move >= cp.total_distance THEN false 
+                        ELSE true 
+                    END,
+                    last_update_date = NOW()
+                FROM calculated_points cp
+                WHERE r.id = cp.id
+                AND r.status = false`);
+        }, intervalTiming);
+        
     }
 
     async generateRoutes(): Promise<void> {

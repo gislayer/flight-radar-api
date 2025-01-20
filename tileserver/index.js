@@ -26,7 +26,7 @@ async function updateLastPoints() {
     try {
         const client = await pool.connect();
         const result = await client.query(
-            'select r.id,st_asgeojson(r.point) as geometry, a.aircraft_type_id as type, r.altitude, r.speed from routes r,aircraft a where r.status=true and a.id=r.aircraft_id'
+            'select r.id,st_asgeojson(r.point) as geometry, a.aircraft_type_id as type, r.altitude, r.speed, r.bearing from routes r,aircraft a where r.status=true and a.id=r.aircraft_id'
         );
         client.release();
 
@@ -39,13 +39,14 @@ async function updateLastPoints() {
                     id: item.id,
                     type: item.type,
                     altitude: item.altitude,
-                    speed: item.speed
+                    speed: item.speed,
+                    bearing: item.bearing
                 }
             }))
         };
 
         var options = {
-            maxZoom: 18,
+            maxZoom: 10,
             tolerance: 3,
             extent: 4096,
             buffer: 64,
@@ -71,8 +72,8 @@ updateLastPoints();
 setInterval(updateLastPoints, 1000000);
 
 // Son noktalar için tile endpoint'i
-app.get('/lastpoints/:z/:x/:y.pbf', (req, res) => {
-    const { z, x, y } = req.params;
+app.get('/lastpoints/:time/:z/:x/:y.pbf', (req, res) => {
+    const { time, z, x, y } = req.params;
     
     if (!tileIndexMap.has('lastpoints')) {
         return res.status(404).json({ error: 'Layer bulunamadı' });
