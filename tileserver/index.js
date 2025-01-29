@@ -69,7 +69,7 @@ async function updateLastPoints() {
 
 // İlk güncellemeyi yap ve her 2 saniyede bir tekrarla
 updateLastPoints();
-setInterval(updateLastPoints, 1000000);
+setInterval(updateLastPoints, 2000);
 
 // Son noktalar için tile endpoint'i
 app.get('/lastpoints/:time/:z/:x/:y.pbf', (req, res) => {
@@ -94,5 +94,5 @@ app.get('/lastpoints/:time/:z/:x/:y.pbf', (req, res) => {
 
 // Sunucuyu başlat
 app.listen(2004, () => {
-    console.log('Sunucu 2001 portunda çalışıyor');
+    console.log('Tileserver running on port 2004');
 });

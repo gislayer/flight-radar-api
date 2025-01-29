@@ -7,7 +7,7 @@ export class RouteLog {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @ManyToOne(() => Route)
+    @ManyToOne(() => Route, { onDelete: 'CASCADE' })
     @JoinColumn({ name: 'route_id' })
     route: Route;
 

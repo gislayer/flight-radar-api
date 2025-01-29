@@ -3,6 +3,7 @@ import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
 import { RoutesService } from './routes.service';
 import { CreateRouteDto, UpdateRouteDto } from './dto/create-route.dto';
 import { Route } from './entities/routes.entitiy';
+import { BboxRouteDto } from './dto/bbox-route.dto';
 
 @ApiTags('Routes')
 @Controller('routes')
@@ -42,25 +43,39 @@ export class RoutesController {
         return this.routesService.findAll();
     }
 
-    @Get('/remove')
+    @Get('jobs/remove')
     @ApiOperation({ summary: 'ID ile rota getir' })
     @ApiResponse({ status: 200, description: 'Rota başarıyla getirildi', type: Route })
     removeAll() {
         return this.routesService.removeAll();
     }
 
-    @Get('/generate')
+    @Get('jobs/generate')
     @ApiOperation({ summary: 'Rotaları oluştur' })
     @ApiResponse({ status: 200, description: 'Rotalar başarıyla oluşturuldu' })
     generateRoutes() {
         return this.routesService.generateRoutes();
     }
 
-    @Get('/start')
+    @Get('jobs/next')
+    @ApiOperation({ summary: 'Sonraki Goruntu' })
+    @ApiResponse({ status: 200, description: 'Rotalar başarıyla oluşturuldu' })
+    nextRoutes() {
+        return this.routesService.nextStep();
+    }
+
+    @Get('jobs/start')
     @ApiOperation({ summary: 'Rota loglarını getir' })
     @ApiResponse({ status: 200, description: 'Rota logları başarıyla getirildi' })
     getLogs() {
         return this.routesService.start();
+    }
+
+    @Post('jobs/live')
+    @ApiOperation({ summary: 'Anlik data getirir' })
+    @ApiResponse({ status: 200, description: 'Rota logları başarıyla getirildi' })
+    getLiveData(@Body() data: BboxRouteDto) {
+        return this.routesService.getLiveData(data.bbox);
     }
 
     @Get(':id')
