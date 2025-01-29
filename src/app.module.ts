@@ -10,6 +10,7 @@ import { AirportsModule } from './airports/airports.module';
 import { PilotsModule } from './pilots/pilots.module';
 import { RoutesModule } from './routes/routes.module';
 import { TileserverModule } from './tileserver/tileserver.module';
+import { WebsocketModule } from './websocket/websocket.module';
 
 const generateString = () => uuidv4();
 
@@ -44,7 +45,8 @@ const generateString = () => uuidv4();
     AirportsModule,
     PilotsModule,
     RoutesModule,
-    TileserverModule
+    TileserverModule,
+    WebsocketModule
   ],
   controllers: [],
   providers: [],

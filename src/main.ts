@@ -6,6 +6,7 @@ import { ResponseInterceptor } from './response/interceptors/response.intercepto
 import { RequestInterceptor } from './response/interceptors/request.interceptor';
 import { HttpExceptionFilter } from './response/filters/http-exception.filter';
 import { NestExpressApplication } from '@nestjs/platform-express';
+import { WsAdapter } from '@nestjs/platform-ws'; 
 import { join } from 'path';
 import { fork } from 'child_process';
 import * as bodyParser from 'body-parser';
@@ -28,7 +29,7 @@ async function bootstrap() {
   app.setGlobalPrefix('api');
 
   app.useStaticAssets(join(__dirname, '..', 'public'));
-
+  //app.useWebSocketAdapter(new WsAdapter());
   const config = new DocumentBuilder()
     .setTitle('API Documentation')
     .setDescription('API description')
