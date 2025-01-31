@@ -28,11 +28,12 @@ import {
   export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     constructor() {
-        console.log('ChatGateway başlatıldı');
+        console.log('ChatGateway started');
         setInterval(() => {
-            console.log('--- Mevcut Durum Raporu ---');
-            console.log(`Connected Admin Counts: ${this.admin.size}`);
-            console.log('Connected Admins:', Array.from(this.admin.keys()));
+            console.log('--- Current Status ---');
+            console.log(`Connected User Counts: ${this.users.size}`);
+            console.log('Connected Users:', Array.from(this.users.keys()));
+            console.log('Created Routes:', Array.from(this.routes.keys()));
             console.log(`Messages Counts: ${this.messages.length}`);
             console.log('------------------------');
         }, 10000); // Her 10 saniyede bir durum raporu
@@ -42,9 +43,9 @@ import {
     server: Server;
   
     private logger = new Logger('ChatGateway');
-    private admin: Map<number, {id:number, name:string, socketId:string, rooms:string[]}> = new Map();
-    private pilots: Map<number, object> = new Map();
-    private messages: ChatMessage[] = [];
+    private users: Map<number, {id:number, name:string, socketId:string, routes:number[]}> = new Map();
+    private routes: Map<number, number[]> = new Map();
+    private messages: SendMessageDto[] = [];
   
     handleConnection(client: Socket) {
       this.logger.log(`Client connected: ${client.id}`);
@@ -53,9 +54,9 @@ import {
     handleDisconnect(client: Socket) {
       console.log('Connection closed...');
       // Kullanıcıyı bağlı kullanıcılar listesinden çıkar
-      for (const [id, item] of this.admin.entries()) {
+      for (const [id, item] of this.users.entries()) {
         if (item['socketId'] === client.id) {
-          this.admin.delete(id);
+          this.users.delete(id);
           console.log(`${item['name']} disconnected!`);
           break;
         }
@@ -66,30 +67,24 @@ import {
     @SubscribeMessage('leave')
     handleLeaveChat(
       @ConnectedSocket() client: Socket,
-      @MessageBody() data: {socketId: string, pilotId: number, adminId: number},
+      @MessageBody() data: {socketId: string, route_id: number, user_id: number},
     ) {
-      console.log(`Admin with ID ${data.adminId} is leaving pilot room with ID ${data.pilotId}`);
-
-      const admin = this.admin.get(data.adminId);
-      
-      if (admin) {
-        // Admin'in odalar listesinden pilotId'yi kaldır
-        admin.rooms = admin.rooms.filter(room => room !== data.pilotId.toString());
-        this.admin.set(data.adminId, admin);
-        
-        // Socket'i odadan çıkar
-        client.leave(data.pilotId.toString());
-        
-        console.log(`${admin.name} successfully left room ${data.pilotId}`);
+      const user = this.users.get(data.user_id);
+      if (user) {
+        user.routes = user.routes.filter(route_id => route_id !== data.route_id);
+        this.users.set(data.user_id, user);
+        client.leave(`route_${data.route_id}`);
+        console.log(`${user.name} successfully left from route ${data.route_id}`);
         client.emit('left', {
-          room: data.pilotId.toString(),
-          admin: {
-            id: admin.id,
-            name: admin.name
+          route_id: data.route_id,
+          user: {
+            id: user.id,
+            name: user.name,
+            date: Date.now()
           }
         });
       } else {
-        console.log(`${data.adminId} Admin Not Found`);
+        console.log(`User Not Found`);
       }
     }
   
@@ -98,48 +93,46 @@ import {
       @ConnectedSocket() client: Socket,
       @MessageBody() data: JoinChatDto,
     ) {
-      console.log(`${data.adminName} user connected to ${data.pilotId}-${data.name} - pilot`);
+      console.log(`${data.name} User connected to ${data.route_id} - route`);
 
-      var admin = this.admin.get(data.adminId);
-      var adminObject:any = {
-        id: data.adminId,
-        name: data.adminName,
+      var user = this.users.get(data.id);
+      var userObj:any = {
+        id: data.id,
+        name: data.name,
         socketId: data.socketId,
-        rooms:[]
-      }
-
-      if(admin){
-        var rooms:string[] = admin.rooms;
-        if(!rooms.includes(data.pilotId.toString())){ 
-          client.join(data.pilotId.toString());
-          rooms.push(data.pilotId.toString());
+        routes:[]
+      };
+      if(user){
+        var routes:number[] = user.routes;
+        if(!routes.includes(data.route_id)){ 
+          client.join(`route_${data.route_id}`);
+          routes.push(data.route_id);
         }
-        admin.rooms = rooms;
-        this.admin.set(data.adminId, admin);
+        user.routes = routes;
+        this.users.set(data.id, user);
       }else{
-        var rooms:string[] = adminObject.rooms;
-        if(!rooms.includes(data.pilotId.toString())){ 
-          client.join(data.pilotId.toString());
-          rooms.push(data.pilotId.toString());
+        var routes:number[] = userObj.routes;
+        if(!routes.includes(data.route_id)){ 
+          client.join(`route_${data.route_id}`);
+          routes.push(data.route_id);
         }
-        adminObject.rooms = rooms;
-        this.admin.set(data.adminId, adminObject);
+        userObj.routes = routes;
+        this.users.set(data.id, userObj);
       }
-
-      admin = this.admin.get(data.adminId);
-
-      
-      console.log(`Created special room for ${admin?.name} and ${data.name} pilot, Room ID: ${data.pilotId}`);
+      user = this.users.get(data.id);
+      console.log(`${user?.name} joined to Route ID: ${data.route_id}`);
+      var routeUsers:number[] = this.routes.get(data.route_id) ?? [];
+      if(!routeUsers.includes(data.id)){
+        routeUsers.push(data.id);
+        this.routes.set(data.route_id, routeUsers);
+      }
       client.emit('joined', {
-        room: data.pilotId.toString(),
-        admin: {
-          id: admin?.id,
-          name: admin?.name
+        route_id: data.route_id,
+        user: {
+          id: user?.id,
+          name: user?.name
         },
-        pilot: {
-          id: data.pilotId,
-          name: data.name
-        }
+        route_users: routeUsers
       });
     }
   
@@ -148,23 +141,25 @@ import {
       @ConnectedSocket() client: Socket,
       @MessageBody() data: SendMessageDto,
     ) {
-      console.log('Yeni mesaj gönderme isteği alındı');
-      
-      var admin = this.admin.get(data.adminId);
-      var rooms = admin?.rooms;
-      if(rooms?.includes(data.message.pilotId.toString())){
-        const message: ChatMessage = {
-          id: uuidv4(),
-          from: admin?.id.toString() ?? '',
-          to: data.message.pilotId.toString(),
-          message: data.message.message,
-          timestamp: new Date(),
-          isRead: false,
-        };
-        client.emit('message', data.message);
-        this.messages.push(message);
-        this.server.to(message.to).emit('message', message);
-        console.log(`New message sent to ${message.to}`);
+      console.log(`New ${data.message.type} message request from ${data.user_id} for route ${data.route_id}`);
+      var user = this.users.get(data.user_id);
+      if(!user) return;
+      var routes = user?.routes;
+      if(routes?.includes(data.route_id)){
+        //client.emit('message', data);
+        //this.server.to(`route_${data.route_id}`).emit('message', data);
+        var routeUsers = this.routes.get(data.route_id);
+        if(routeUsers){
+        for(var user_id of routeUsers){
+          var user = this.users.get(user_id);
+          if(user){
+            console.log(`Sending message to ${user.name}`);
+            this.server.to(user.socketId).emit('message', data);
+          }
+        }
+        this.messages.push(data);
+        //this.server.to(`route_${data.route_id}`).emit('message', data);
       }
     }
   }
+}

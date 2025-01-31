@@ -60,10 +60,10 @@ async function updateLastPoints() {
 
         const tileIndex = geojsonvt(geojson, options);
         tileIndexMap.set('lastpoints', tileIndex);
-        console.log('Son noktalar güncellendi');
+        console.log('Tileserver updated');
 
     } catch (error) {
-        console.error('Son noktalar güncellenirken hata:', error);
+        console.error('Tileserver update error', error);
     }
 }
 
