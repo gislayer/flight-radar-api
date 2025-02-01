@@ -10,13 +10,13 @@ export class PilotsController {
     constructor(private readonly pilotsService: PilotsService) {}
 
     @Post()
-    @ApiOperation({ summary: 'Yeni pilot oluştur' })
-    @ApiResponse({ status: 201, description: 'Pilot başarıyla oluşturuldu', type: Pilot })
+    @ApiOperation({ summary: 'Create new pilot' })
+    @ApiResponse({ status: 201, description: 'Pilot created successfully', type: Pilot })
     @ApiBody({
         type: CreatePilotDto,
         examples: {
             pilot1: {
-                summary: 'Temel pilot örneği',
+                summary: 'Basic pilot example',
                 value: {
                     name: 'Ali Kilic',
                     settings: {
@@ -26,7 +26,7 @@ export class PilotsController {
                 }
             },
             pilot2: {
-                summary: 'Sadece isimli pilot örneği',
+                summary: 'Pilot example with name only',
                 value: {
                     name: 'Ali Kilic'
                 }
@@ -38,27 +38,27 @@ export class PilotsController {
     }
 
     @Get()
-    @ApiOperation({ summary: 'Tüm pilotları getir' })
-    @ApiResponse({ status: 200, description: 'Pilotlar başarıyla getirildi', type: [Pilot] })
+    @ApiOperation({ summary: 'Get all pilots' })
+    @ApiResponse({ status: 200, description: 'Pilots retrieved successfully', type: [Pilot] })
     findAll() {
         return this.pilotsService.findAll();
     }
 
     @Get(':id')
-    @ApiOperation({ summary: 'ID ile pilot getir' })
-    @ApiResponse({ status: 200, description: 'Pilot başarıyla getirildi', type: Pilot })
+    @ApiOperation({ summary: 'Get pilot by ID' })
+    @ApiResponse({ status: 200, description: 'Pilot retrieved successfully', type: Pilot })
     findOne(@Param('id') id: string) {
         return this.pilotsService.findOne(+id);
     }
 
     @Put(':id')
-    @ApiOperation({ summary: 'Pilot bilgilerini güncelle' })
-    @ApiResponse({ status: 200, description: 'Pilot başarıyla güncellendi', type: Pilot })
+    @ApiOperation({ summary: 'Update pilot information' })
+    @ApiResponse({ status: 200, description: 'Pilot updated successfully', type: Pilot })
     @ApiBody({
         type: UpdatePilotDto,
         examples: {
             update1: {
-                summary: 'Tüm alanları güncelleme örneği',
+                summary: 'Example of updating all fields',
                 value: {
                     name: 'Ali Kaya',
                     settings: {
@@ -68,9 +68,9 @@ export class PilotsController {
                 }
             },
             update2: {
-                summary: 'Kısmi güncelleme örneği',
+                summary: 'Example of partial update',
                 value: {
-                    name: 'Ayşe Yıldız'
+                    name: 'Ayse Yildiz'
                 }
             }
         }
@@ -80,8 +80,8 @@ export class PilotsController {
     }
 
     @Delete(':id')
-    @ApiOperation({ summary: 'Pilot sil' })
-    @ApiResponse({ status: 200, description: 'Pilot başarıyla silindi' })
+    @ApiOperation({ summary: 'Delete pilot' })
+    @ApiResponse({ status: 200, description: 'Pilot deleted successfully' })
     remove(@Param('id') id: string) {
         return this.pilotsService.remove(+id);
     }

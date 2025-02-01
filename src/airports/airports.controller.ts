@@ -11,36 +11,36 @@ export class AirportsController {
   constructor(private readonly airportsService: AirportsService) {}
 
   @Post()
-  @ApiOperation({ summary: 'Yeni havalimanı oluştur' })
-  @ApiResponse({ status: 201, description: 'Havalimanı başarıyla oluşturuldu', type: Airport })
+  @ApiOperation({ summary: 'Create new airport' })
+  @ApiResponse({ status: 201, description: 'Airport created successfully', type: Airport })
   create(@Body() createAirportDto: CreateAirportDto): Promise<Airport> {
     return this.airportsService.create(createAirportDto);
   }
 
   @Get()
-  @ApiOperation({ summary: 'Tüm havalimanlarını listele' })
-  @ApiResponse({ status: 200, description: 'Havalimanları başarıyla listelendi', type: [Airport] })
+  @ApiOperation({ summary: 'List all airports' })
+  @ApiResponse({ status: 200, description: 'Airports listed successfully', type: [Airport] })
   findAll(): Promise<Airport[]> {
     return this.airportsService.findAll();
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'ID\'ye göre havalimanı getir' })
-  @ApiResponse({ status: 200, description: 'Havalimanı başarıyla getirildi', type: Airport })
+  @ApiOperation({ summary: 'Get airport by ID' })
+  @ApiResponse({ status: 200, description: 'Airport retrieved successfully', type: Airport })
   findOne(@Param('id') id: number): Promise<Airport | null> {
     return this.airportsService.findOne(id);
   }
 
   @Put(':id')
-  @ApiOperation({ summary: 'Havalimanı bilgilerini güncelle' })
-  @ApiResponse({ status: 200, description: 'Havalimanı başarıyla güncellendi', type: Airport })
+  @ApiOperation({ summary: 'Update airport information' })
+  @ApiResponse({ status: 200, description: 'Airport updated successfully', type: Airport })
   update(@Param('id') id: number, @Body() updateAirportDto: UpdateAirportDto): Promise<Airport | null> {
     return this.airportsService.update(id, updateAirportDto);
   }
 
   @Delete(':id')
-  @ApiOperation({ summary: 'Havalimanını sil' })
-  @ApiResponse({ status: 200, description: 'Havalimanı başarıyla silindi' })
+  @ApiOperation({ summary: 'Delete airport' })
+  @ApiResponse({ status: 200, description: 'Airport deleted successfully' })
   remove(@Param('id') id: number): Promise<void> {
     return this.airportsService.remove(id);
   }

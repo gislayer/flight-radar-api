@@ -11,13 +11,13 @@ export class RoutesController {
     constructor(private readonly routesService: RoutesService) {}
 
     @Post()
-    @ApiOperation({ summary: 'Yeni rota oluştur' })
-    @ApiResponse({ status: 201, description: 'Rota başarıyla oluşturuldu', type: Route })
+    @ApiOperation({ summary: 'Create new route' })
+    @ApiResponse({ status: 201, description: 'Route created successfully', type: Route })
     @ApiBody({
         type: CreateRouteDto,
         examples: {
             route1: {
-                summary: 'Temel rota örneği',
+                summary: 'Basic route example',
                 value: {
                     start_airport_id: 1,
                     finish_airport_id: 2,
@@ -37,50 +37,50 @@ export class RoutesController {
     }
 
     @Get()
-    @ApiOperation({ summary: 'Tüm rotaları getir' })
-    @ApiResponse({ status: 200, description: 'Rotalar başarıyla getirildi', type: [Route] })
+    @ApiOperation({ summary: 'Get all routes' })
+    @ApiResponse({ status: 200, description: 'Routes retrieved successfully', type: [Route] })
     findAll() {
         return this.routesService.findAll();
     }
 
     @Get('jobs/remove')
-    @ApiOperation({ summary: 'ID ile rota getir' })
-    @ApiResponse({ status: 200, description: 'Rota başarıyla getirildi', type: Route })
+    @ApiOperation({ summary: 'Get route by ID' })
+    @ApiResponse({ status: 200, description: 'Route retrieved successfully', type: Route })
     removeAll() {
         return this.routesService.removeAll();
     }
 
     @Get('jobs/generate')
-    @ApiOperation({ summary: 'Rotaları oluştur' })
-    @ApiResponse({ status: 200, description: 'Rotalar başarıyla oluşturuldu' })
+    @ApiOperation({ summary: 'Generate routes' })
+    @ApiResponse({ status: 200, description: 'Routes generated successfully' })
     generateRoutes() {
         return this.routesService.generateRoutes();
     }
 
     @Get('jobs/next')
-    @ApiOperation({ summary: 'Sonraki Goruntu' })
-    @ApiResponse({ status: 200, description: 'Rotalar başarıyla oluşturuldu' })
+    @ApiOperation({ summary: 'Next View' })
+    @ApiResponse({ status: 200, description: 'Routes generated successfully' })
     nextRoutes() {
         return this.routesService.nextStep();
     }
 
     @Get('jobs/start')
-    @ApiOperation({ summary: 'Rota loglarını getir' })
-    @ApiResponse({ status: 200, description: 'Rota logları başarıyla getirildi' })
+    @ApiOperation({ summary: 'Get route logs' })
+    @ApiResponse({ status: 200, description: 'Route logs retrieved successfully' })
     getLogs() {
         return this.routesService.start();
     }
 
     @Post('jobs/live')
-    @ApiOperation({ summary: 'Anlik data getirir' })
-    @ApiResponse({ status: 200, description: 'Rota logları başarıyla getirildi' })
+    @ApiOperation({ summary: 'Get live data' })
+    @ApiResponse({ status: 200, description: 'Route logs retrieved successfully' })
     getLiveData(@Body() data: BboxRouteDto) {
         return this.routesService.getLiveData(data.bbox);
     }
 
     @Get(':id')
-    @ApiOperation({ summary: 'ID ile rota getir' })
-    @ApiResponse({ status: 200, description: 'Rota başarıyla getirildi', type: Route })
+    @ApiOperation({ summary: 'Get route by ID' })
+    @ApiResponse({ status: 200, description: 'Route retrieved successfully', type: Route })
     findOne(@Param('id') id: string) {
         return this.routesService.findOne(+id);
     }
@@ -88,13 +88,13 @@ export class RoutesController {
     
 
     @Put(':id')
-    @ApiOperation({ summary: 'Rota bilgilerini güncelle' })
-    @ApiResponse({ status: 200, description: 'Rota başarıyla güncellendi', type: Route })
+    @ApiOperation({ summary: 'Update route information' })
+    @ApiResponse({ status: 200, description: 'Route updated successfully', type: Route })
     @ApiBody({
         type: UpdateRouteDto,
         examples: {
             update1: {
-                summary: 'Rota güncelleme örneği',
+                summary: 'Route update example',
                 value: {
                     start_airport_id: 2,
                     finish_airport_id: 3,
@@ -114,8 +114,8 @@ export class RoutesController {
     }
 
     @Delete(':id')
-    @ApiOperation({ summary: 'Rota sil' })
-    @ApiResponse({ status: 200, description: 'Rota başarıyla silindi' })
+    @ApiOperation({ summary: 'Delete route' })
+    @ApiResponse({ status: 200, description: 'Route deleted successfully' })
     remove(@Param('id') id: string) {
         return this.routesService.remove(+id);
     }

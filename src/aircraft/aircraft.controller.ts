@@ -11,36 +11,36 @@ export class AircraftController {
   constructor(private readonly aircraftService: AircraftService) {}
 
   @Post()
-  @ApiOperation({ summary: 'Yeni uçak oluştur' })
-  @ApiResponse({ status: 201, description: 'Uçak başarıyla oluşturuldu', type: Aircraft })
+  @ApiOperation({ summary: 'Create new aircraft' })
+  @ApiResponse({ status: 201, description: 'Aircraft created successfully', type: Aircraft })
   create(@Body() createAircraftDto: CreateAircraftDto) {
     return this.aircraftService.create(createAircraftDto);
   }
 
   @Get()
-  @ApiOperation({ summary: 'Tüm uçakları listele' })
-  @ApiResponse({ status: 200, description: 'Uçaklar başarıyla listelendi', type: [Aircraft] })
+  @ApiOperation({ summary: 'List all aircrafts' })
+  @ApiResponse({ status: 200, description: 'Aircrafts listed successfully', type: [Aircraft] })
   findAll() {
     return this.aircraftService.findAll();
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'ID\'ye göre uçak getir' })
-  @ApiResponse({ status: 200, description: 'Uçak başarıyla getirildi', type: Aircraft })
+  @ApiOperation({ summary: 'Get aircraft by ID' })
+  @ApiResponse({ status: 200, description: 'Aircraft retrieved successfully', type: Aircraft })
   findOne(@Param('id') id: string) {
     return this.aircraftService.findOne(+id);
   }
 
   @Put(':id')
-  @ApiOperation({ summary: 'Uçak bilgilerini güncelle' })
-  @ApiResponse({ status: 200, description: 'Uçak başarıyla güncellendi', type: Aircraft })
+  @ApiOperation({ summary: 'Update aircraft information' })
+  @ApiResponse({ status: 200, description: 'Aircraft updated successfully', type: Aircraft })
   update(@Param('id') id: string, @Body() updateAircraftDto: UpdateAircraftDto) {
     return this.aircraftService.update(+id, updateAircraftDto);
   }
 
   @Delete(':id')
-  @ApiOperation({ summary: 'Uçak sil' })
-  @ApiResponse({ status: 200, description: 'Uçak başarıyla silindi' })
+  @ApiOperation({ summary: 'Delete aircraft' })
+  @ApiResponse({ status: 200, description: 'Aircraft deleted successfully' })
   remove(@Param('id') id: string) {
     return this.aircraftService.remove(+id);
   }
