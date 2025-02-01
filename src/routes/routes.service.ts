@@ -8,7 +8,9 @@ import { Airport } from 'src/airports/entities/airports.entitiy';
 import { RouteLog } from './entities/route_logs.entitiy';
 import * as turf from '@turf/turf';
 import { Point } from 'geojson';
-
+import { Pilot } from 'src/pilots/entities/pilots.entitiy';
+import { Aircraft } from 'src/aircraft/entities/aircraft.entitiy';
+import { test_Data, TestData } from './data/sample';
 @Injectable()
 export class RoutesService {
     private speed = 800;
@@ -91,7 +93,92 @@ export class RoutesService {
       return geojson;  
     }
 
+    getItemFromTestData(item:TestData,index:number):any {
+      var sample = {
+        type: 'Feature',
+        properties: {
+          id: index,
+          altitude: item.alt*0.3048,
+          bearing: item.hd,
+          //speed: (item.spd/101.268591)*1.852,
+          speed: item.spd,
+          date: new Date(item.ts * 1000)
+        },
+        geometry: {
+          type: "Point",
+          coordinates: [
+            item.lng,
+            item.lat,
+          ],
+        },
+      };
+      return sample;
+    }
+
+    async getTestData(): Promise<Route | null> {
+      var test_data = test_Data;
+      test_data.reverse();
+      var path:FeatureCollection = {type:'FeatureCollection', features:[]};
+      for (let i = 0; i < test_data.length; i++) {
+        path.features.push(this.getItemFromTestData(test_data[i],i+1));
+      }
+      var pilot:any = {
+        id: 1,
+        name: 'Ali Kilic',
+        settings: {}
+      };
+      var aircraft:any = {
+        id: 1,
+        aircraftTypeId: 1,
+        name: 'A320',
+        settings: {},
+        aircraftType: {
+          id: 1,
+          name: 'Airbus A320',
+          imgId:1,
+          settings: {}
+        }
+      };
+      var start_airport:any = {
+        id: 1,
+        name: 'İstanbul Airport',
+        geometry: {
+          type: 'Point',
+          coordinates: [28.748962, 41.25713]
+        }
+      };
+      var finish_airport:any = {
+        id: 2,
+        name: 'Adnan Menderes Airport',
+        geometry: {
+          type: 'Point',
+          coordinates: [27.157429, 38.290798]
+        }
+      };
+      var data:Route = {
+        id: 1,
+        start_airport: start_airport,
+        finish_airport: finish_airport,
+        pilot: pilot,
+        aircraft: aircraft,
+        status: true,
+        point: {
+          type: 'Point',
+          coordinates: [27.157429, 38.290798]
+        },
+        last_update_date: new Date(),
+        speed: 0,
+        altitude: 0,
+        bearing: 0
+      };
+      data['path'] = path;
+      return data;
+    }
+
     async findOne(id: number): Promise<Route | null> {
+      if(id === 1) {
+        return await this.getTestData();
+      }
         var data:any = await this.routeRepository.findOne({
             where: { id },
             relations: ['start_airport', 'finish_airport', 'pilot', 'aircraft'],  
